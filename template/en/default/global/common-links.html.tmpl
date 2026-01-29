@@ -1,0 +1,32 @@
+[%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  #
+  # This Source Code Form is "Incompatible With Secondary Licenses", as
+  # defined by the Mozilla Public License, v. 2.0.
+  #%]
+
+[% DEFAULT qs_suffix = "" %]
+[% USE Bugzilla %]
+
+<ul class="links">
+  [% IF doc_section %]
+    <li>
+      <a href="[% docs_urlbase _ doc_section FILTER html %]" target="_blank">Help</a>
+    </li>
+  [% END %]
+
+  [% IF user.login && user.can_administer %]
+    <li><a href="admin.cgi">Administration</a></li>
+  [% END %]
+</ul>
+
+[% Hook.process("link-row") %]
+[% BLOCK link_to_documentation %]
+    [% IF doc_section %]
+      <li>
+        <span class="separator">| </span>
+        <a href="[% docs_urlbase _ doc_section FILTER html %]" target="_blank">Help</a>
+      </li>
+    [% END %]
+[% END %]

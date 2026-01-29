@@ -1,0 +1,282 @@
+[% PROCESS global/header.html.tmpl
+   title = "$terms.Bugzilla Main Page"
+   header = "Main Page" 
+   header_addl_info = "version $constants.BUGZILLA_VERSION"
+   style_urls = ['skins/standard/global.css', 'skins/standard/modern-additional.css']
+   javascript_urls = ['js/global.js']
+%]
+
+[% IF release %]
+  <div id="new_release">
+    [% IF release.data %]
+      [% IF release.eos_date %]
+        <p>[% terms.Bugzilla %] [%+ release.branch_version FILTER html %] will
+        no longer receive security updates after [% release.eos_date FILTER html %].
+        You are highly encouraged to upgrade in order to keep your
+        system secure.</p>
+      [% END %]
+      [% IF release.deprecated %]
+        <p>Bugzilla [%+ release.deprecated FILTER html %] is no longer
+        supported. You are highly encouraged to upgrade in order to keep your
+        system secure.</p>
+      [% END %]
+
+      <p>A new Bugzilla version ([% release.data.latest_ver FILTER html %])
+      is available at
+      <a href="[% release.data.url FILTER html %]">[% release.data.url FILTER html %]</a>.<br>
+      Release date: [% release.data.date FILTER html %]</p>
+
+      <p class="notice">This message is only shown to logged in users with admin privs.
+      You can configure this notification from the
+      <a href="editparams.cgi?section=general#upgrade_notification_desc">Parameters</a> page.</p>
+    [% ELSIF release.error == "cannot_download" %]
+      <p>The remote file <a href="[% constants.REMOTE_FILE FILTER html %]">
+      [%~ constants.REMOTE_FILE FILTER html %]</a> cannot be downloaded
+      (reason: [% release.reason FILTER html %]).<br>
+      Either the remote server is temporarily unavailable, or your web server cannot access
+      the web. If you are behind a proxy, set the
+      <a href="editparams.cgi?section=advanced#proxy_url_desc">proxy_url</a> parameter correctly.</p>
+    [% ELSIF release.error == "no_write" %]
+      <p>The local XML file '[% constants.LOCAL_FILE FILTER html %]' cannot be created
+      (reason: [% release.reason FILTER html %]).<br>
+      Please make sure the web server can write into this directory.
+    [% ELSIF release.error == "no_update" %]
+      <p>The local XML file '[% constants.LOCAL_FILE FILTER html %]' cannot be updated.
+      Please make sure the web server can edit this file.</p>
+    [% ELSIF release.error == "no_access" %]
+      <p>The local XML file '[% constants.LOCAL_FILE FILTER html %]' cannot be read.
+      Please make sure this file has the correct rights set on it.</p>
+    [% ELSIF release.error == "corrupted" %]
+      <p>The local XML file '[% constants.LOCAL_FILE FILTER html %]' has an invalid XML format.
+      Please delete it and try accessing this page again.</p>
+    [% ELSIF release.error == "unknown_parameter" %]
+      <p>'[% Param("upgrade_notification") FILTER html %]' is not a valid notification
+      parameter. Please check this parameter in the
+      <a href="editparams.cgi?section=general#upgrade_notification_desc">Parameters</a> page.</p>
+    [% END %]
+  </div>
+[% END %]
+
+[% IF message %]
+<div class="success-message">
+  <span class="icon">✓</span>
+  <span>[% message FILTER html %]</span>
+</div>
+[% END %]
+
+<div class="container">
+  <div class="options-container">
+    <div class="option-card">
+      <a href="enter_bug.cgi">
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#fff">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+        </div>
+        <h2>File [% terms.aBug %]</h2>
+        <p>Report issues and track progress with our bug filing system.</p>
+      </a>
+    </div>
+
+    <div class="option-card">
+      <a href="query.cgi">
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#fff">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </div>
+        <h2>Search</h2>
+        <p>Find bugs across different projects and components.</p>
+      </a>
+    </div>
+
+    <div class="option-card">
+      <a href="[% IF user.id %]userprefs.cgi[% ELSIF Param('createemailregexp') && user.authorizer.user_can_create_account %]createaccount.cgi[% ELSE %]?GoAheadAndLogIn=1[% END %]">
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#fff">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+        </div>
+        <h2>[% IF user.id %]User Preferences[% ELSIF Param('createemailregexp') && user.authorizer.user_can_create_account %]Open a New Account[% ELSE %]Log In[% END %]</h2>
+        <p>[% IF user.id %]Manage your account settings and preferences.[% ELSIF Param('createemailregexp') && user.authorizer.user_can_create_account %]Create a new Bugzilla account to start reporting bugs.[% ELSE %]Log in to access your account and manage bugs.[% END %]</p>
+      </a>
+    </div>
+
+    <div class="option-card">
+      <a href="[% docs_urlbase FILTER html %]using/index.html">
+        <div class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="#fff">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+          </svg>
+        </div>
+        <h2>Documentation</h2>
+        <p>Learn how to use Bugzilla effectively with our guides.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <form id="quicksearchForm" name="quicksearchForm" action="buglist.cgi">
+      <input id="quicksearch_main" name="quicksearch" title="Quick Search" 
+             class="search-input" 
+             placeholder="Enter [% terms.abug %] # or some search terms"
+             aria-labelledby="find"
+             autofocus required>
+      <button id="find" type="submit" class="search-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        Quick Search
+      </button>
+      <a href="page.cgi?id=quicksearch.html" title="Quick Search help">[?]</a>
+    </form>
+  </div>
+  
+  <div id="common_queries">
+    <h4>Common Queries:</h4>
+    <ul>
+      [% IF user.id %]
+<li>
+  [% title = BLOCK %]Open [% terms.bugs %] assigned to me[% END %]
+  <a href="buglist.cgi?f1=assigned_to&amp;o1=equals&amp;v1=%25user%25&amp;f2=bug_status&amp;o2=notequals&amp;v2=VERIFIED">
+    [% title FILTER html %]</a> 
+  <a href="buglist.cgi?f1=assigned_to&amp;o1=equals&amp;v1=%25user%25&amp;f2=bug_status&amp;o2=notequals&amp;v2=VERIFIED&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+     class="rss">&nbsp;</a>
+</li>
+        <li>
+          [% title = BLOCK %]Open [% terms.bugs %] reported by me[% END %]
+          <a href="buglist.cgi?f1=reporter&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---">
+            [% title FILTER html %]</a>
+          <a href="buglist.cgi?f1=reporter&amp;o1=equals&amp;v1=%25user%25&amp;resolution=---&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+             class="rss">&nbsp;</a>
+        </li>
+        [% IF Bugzilla.has_flags %]
+          <li>
+            [% title = BLOCK %]Requests addressed to me[% END %]
+            <a href="request.cgi?action=queue&amp;requestee=[% user.login FILTER uri %]&amp;group=type&amp;do_union=0">
+              [% title FILTER html %]</a> ([% requestee_count FILTER html %])
+            <a href="buglist.cgi?f1=requestees.login_name&amp;o1=equals&amp;v1=%25user%25&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+               class="rss">&nbsp;</a>
+          </li>
+        [% END %]
+      [% END %]
+
+      <li>
+        [% terms.Bugs %] reported in the
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=24h">last 24 hours</a>
+        [% title = BLOCK %][% terms.Bugs %] reported in the last 24 hours[% END %]
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=24h&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           aria-label="Bugs reported in the last 24 hours - RSS feed"
+           class="rss">&nbsp;</a>
+        | <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=7d">last 7 days</a>
+        [% title = BLOCK %][% terms.Bugs %] reported in the last 7 days[% END %]
+        <a href="buglist.cgi?chfield=%5BBug%20creation%5D&amp;chfieldfrom=7d&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           aria-label="Bugs reported in the last 7 days - RSS feed"
+           class="rss">&nbsp;</a>
+      </li>
+      <li>
+        [% terms.Bugs %] changed in the
+        <a href="buglist.cgi?chfieldfrom=24h">last 24 hours</a>
+        [% title = BLOCK %][% terms.Bugs %] changed in the last 24 hours[% END %]
+        <a href="buglist.cgi?chfieldfrom=24h&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           aria-label="Bugs changed in the last 24 hours - RSS feed"
+           class="rss">&nbsp;</a>
+        | <a href="buglist.cgi?chfieldfrom=7d">last 7 days</a>
+        [% title = BLOCK %][% terms.Bugs %] changed in the last 7 days[% END %]
+        <a href="buglist.cgi?chfieldfrom=7d&amp;ctype=atom&amp;title=[% title FILTER uri %]"
+           aria-label="Bugs changed in the last 7 days - RSS feed"
+           class="rss">&nbsp;</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-tab tab-active">Login</div>
+      <div class="modal-tab tab-inactive">Forgot Password</div>
+      <span class="modal-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-title">Log in to [% terms.Bugzilla %]</h2>
+      <form id="login-form" action="index.cgi" method="post">
+        <input type="hidden" name="Bugzilla_login_token" value="[% issue_hash_token(['login']) FILTER html %]">
+        <div class="form-group">
+          <label for="username">Email Address</label>
+          <input type="email" class="form-control" id="username" name="Bugzilla_login" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" name="Bugzilla_password" placeholder="Enter your password">
+        </div>
+        <button type="submit" class="login-btn">Log In</button>
+      </form>
+      <div class="create-account">
+        Don't have an account? <a href="[% Param('urlbase') FILTER html %]createaccount.cgi">Create one</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript for the login modal
+document.addEventListener('DOMContentLoaded', function() {
+  // Add login button to the page if user is not logged in
+  [% UNLESS user.id %]
+  const container = document.querySelector('.container');
+  const loginButton = document.createElement('button');
+  loginButton.id = 'login-button';
+  loginButton.className = 'login-btn';
+  loginButton.textContent = 'Log In';
+  container.insertBefore(loginButton, container.firstChild);
+  [% END %]
+  
+  const loginButton = document.getElementById('login-button');
+  const loginModal = document.getElementById('login-modal');
+  const closeButton = document.querySelector('.modal-close');
+  
+  if (loginButton) {
+    loginButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      loginModal.style.display = 'flex';
+    });
+  }
+  
+  if (closeButton) {
+    closeButton.addEventListener('click', function() {
+      loginModal.style.display = 'none';
+    });
+  }
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', function(e) {
+    if (e.target === loginModal) {
+      loginModal.style.display = 'none';
+    }
+  });
+  
+  // Tab switching functionality
+  const tabs = document.querySelectorAll('.modal-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(t => {
+        t.classList.remove('tab-active');
+        t.classList.add('tab-inactive');
+      });
+      
+      this.classList.remove('tab-inactive');
+      this.classList.add('tab-active');
+      
+      // Here you would add logic to switch the form displayed
+    });
+  });
+});
+</script>
+
+[% PROCESS global/footer.html.tmpl %]

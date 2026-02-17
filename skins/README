@@ -15,4 +15,4 @@ skins/standard/, you can override the standard/ and contrib/ CSS. For example,
 if you want to override some CSS in skins/standard/global.css, then you should
 create a file called "global.css" in custom/ and put some CSS in it. The CSS
 you put into files in custom/ will be used *in addition* to the CSS in
-skins/standard/ or the CSS in skins/contrib/. It will apply to every skin.
+skins/standard/ or the CSS in skins/contrib/. It will apply to every skin./////////////////////////////////////////////

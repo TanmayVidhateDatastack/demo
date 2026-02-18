@@ -9,7 +9,9 @@
 use 5.14.0;
 use strict;
 use warnings;
-
+use 5.14.0;
+use strict;
+use warnings;
 use lib qw(. lib);
 
 use Bugzilla;
